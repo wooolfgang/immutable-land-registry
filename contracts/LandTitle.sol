@@ -36,7 +36,7 @@ contract LandTitle is AccessControl {
     function addLandTransaction(address _ownerAddress, bytes32[] _coordinates, bytes32 _ownerName, bytes32 _location) 
     public 
     onlyTransactor
-    onlyValidator {
+    {
         Land memory land = Land({ 
             ownerAddress: _ownerAddress,
             previousOwners: new address[](0),
@@ -53,13 +53,33 @@ contract LandTitle is AccessControl {
         });
         
         addLandTransactions.push(txn);
+    }
+
+    /*
+        Function used by validators to validate the addLandTransaction
+        Adds the caller as validator if current validators are less than required validators
+        Else, transaction is "finished" and land gets added in the lands storage
+    */
+    function validateAddLandTransaction(uint _index) public onlyValidator {
+        AddLandTransaction storage txn = addLandTransactions[_index];
+        for (uint i = 0; i < txn.validators.length; i++) {
+            if (txn.validators[i] == msg.sender) {
+                revert("This address is already a validator");
+            }
+        }
+        
+        txn.validators.push(msg.sender);
+
+        if (txn.validators.length == requiredValidatorsLength) {
+            addLand(txn);
+        }
     }    
     
     /* Function used for transferring lands with previous owner */
     function transferLandTransaction(address _newLandOwner, uint _landIndex) 
     public 
     onlyTransactor
-    onlyValidator {
+    {
         address[] memory validators;
         TransferLandTransaction memory txn = TransferLandTransaction({
             index: transferLandTransactions.length,
@@ -73,17 +93,55 @@ contract LandTitle is AccessControl {
 
     /* 
         Once add land transaction has been validated (e.g 2 validators has validated),
-        Replace the land transaction with the last land transaction
+        Replace the land transaction with the last land transaction, delete the last transaction
         Add the Land on the lands array
     */
     function addLand(AddLandTransaction _transaction) internal onlyValidator {
         require(_transaction.validators.length >= requiredValidatorsLength, "Transfer land needs at least two validators");
         AddLandTransaction storage lastTransaction = addLandTransactions[addLandTransactions.length - 1];
+        lastTransaction.index = _transaction.index;   
         addLandTransactions[_transaction.index] = lastTransaction;
-        lastTransaction.index = _transaction.index;
+        delete addLandTransactions[addLandTransactions.length - 1]; 
         lands.push(_transaction.land);
     }
-    
+
+    function getAddLandTransaction(uint _index) public view onlyValidator returns (
+        uint index,
+        address createdBy, 
+        address[] validators,
+        address ownerAddress,
+        address[] previousOwners,
+        bytes32[] coordinates,
+        bytes32 ownerName,
+        bytes32 location
+    ) {
+        AddLandTransaction memory txn = addLandTransactions[_index];
+        Land memory land = txn.land;
+        return (
+        txn.index, txn.createdBy, txn.validators, land.ownerAddress, 
+        land.previousOwners, land.coordinates, land.ownerName, land.location
+        );
+    }
+
+    function getLandTransactionsLength() public view returns (uint) {
+        return addLandTransactions.length;
+    }
+
+    function getLandsLength() public view returns (uint) {
+        return lands.length;
+    }
+
+    function getLand(uint _index) public view onlyTransactor returns (
+        address ownerAddress,
+        address[] previousOwners,
+        bytes32[] coordinates,
+        bytes32 ownerName,
+        bytes32 location
+    ) {
+        Land memory land = lands[_index];
+        return (land.ownerAddress, land.previousOwners, land.coordinates, land.ownerName, land.location);
+    }
+
     /*
         Once transfer land transaction has been validated, 
         Replace the land transaction with the last land transaction in the array

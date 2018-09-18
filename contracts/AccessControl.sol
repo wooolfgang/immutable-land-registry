@@ -16,12 +16,13 @@ contract AccessControl {
     }
 
     modifier onlyValidator() {
-        require(validators[msg.sender] == true, "Sender address is not registered as validator");
+        require(validators[msg.sender] == true || msg.sender == owner, "Sender address is not registered as validator");
         _;
     }
     
     modifier onlyTransactor() {
-        require(transactors[msg.sender] == true, "Sender address is not registered as transactor");
+        require(
+            transactors[msg.sender] == true || validators[msg.sender] == true || owner == msg.sender, "Sender address is not registered as transactor");
         _;
     }
 
