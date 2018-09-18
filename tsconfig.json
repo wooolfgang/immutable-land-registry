@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+      "experimentalDecorators": true,
+      "allowJs": true
+    },
+    "exclude": [
+      "node_modules",
+      "**/*.spec.ts",
+      "contracts",
+      "migrations",
+      "config"
+    ]
+  }
+  
