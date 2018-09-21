@@ -21,6 +21,7 @@ contract LandTitle is AccessControl {
     struct TransferLandTransaction {
         uint index;
         uint landIndex;
+        bytes32 newLandOwnerName;
         address createdBy;
         address newLandOwner;
         address[] validators;
@@ -55,6 +56,23 @@ contract LandTitle is AccessControl {
         addLandTransactions.push(txn);
     }
 
+     /* Function used for adding land transfer transactions with previous owner */
+    function transferLandTransaction(address _newLandOwner, bytes32 _newLandOwnerName, uint _landIndex) 
+    public 
+    onlyTransactor
+    {
+        address[] memory validators;
+        TransferLandTransaction memory txn = TransferLandTransaction({
+            index: transferLandTransactions.length,
+            landIndex: _landIndex,
+            createdBy: msg.sender,
+            newLandOwner: _newLandOwner,
+            newLandOwnerName: _newLandOwnerName,
+            validators: validators
+        });
+        transferLandTransactions.push(txn);
+    }
+
     /*
         Function used by validators to validate the addLandTransaction
         Adds the caller as validator if current validators are less than required validators
@@ -73,36 +91,21 @@ contract LandTitle is AccessControl {
         if (txn.validators.length == requiredValidatorsLength) {
             addLand(txn);
         }
-    }    
-    
-    /* Function used for transferring lands with previous owner */
-    function transferLandTransaction(address _newLandOwner, uint _landIndex) 
-    public 
-    onlyTransactor
-    {
-        address[] memory validators;
-        TransferLandTransaction memory txn = TransferLandTransaction({
-            index: transferLandTransactions.length,
-            landIndex: _landIndex,
-            createdBy: msg.sender,
-            newLandOwner: _newLandOwner,
-            validators: validators
-        });
-        transferLandTransactions.push(txn);
-    }
+    }   
 
-    /* 
-        Once add land transaction has been validated (e.g 2 validators has validated),
-        Replace the land transaction with the last land transaction, delete the last transaction
-        Add the Land on the lands array
-    */
-    function addLand(AddLandTransaction _transaction) internal onlyValidator {
-        require(_transaction.validators.length >= requiredValidatorsLength, "Transfer land needs at least two validators");
-        AddLandTransaction storage lastTransaction = addLandTransactions[addLandTransactions.length - 1];
-        lastTransaction.index = _transaction.index;   
-        addLandTransactions[_transaction.index] = lastTransaction;
-        delete addLandTransactions[addLandTransactions.length - 1]; 
-        lands.push(_transaction.land);
+    function validateTransferLandTransaction(uint _index) public onlyValidator {
+        TransferLandTransaction storage txn = transferLandTransactions[_index];
+        for (uint i = 0; i < txn.validators.length; i++) {
+            if (txn.validators[i] == msg.sender) {
+                revert("This address is already a validator");
+            }
+        }
+
+        txn.validators.push(msg.sender);
+
+        if (txn.validators.length == requiredValidatorsLength) {
+            transferLand(txn);
+        }
     }
 
     function getAddLandTransaction(uint _index) public view onlyValidator returns (
@@ -123,8 +126,24 @@ contract LandTitle is AccessControl {
         );
     }
 
-    function getLandTransactionsLength() public view returns (uint) {
+    function getTransferLandTransaction(uint _index) public view onlyValidator returns (
+        uint index,
+        uint landIndex,
+        bytes32 newLandOwnerName,
+        address createdBy,
+        address newLandOwner,
+        address[] validators
+    ) {
+        TransferLandTransaction memory txn = transferLandTransactions[_index];
+        return (txn.index, txn.landIndex, txn.newLandOwnerName, txn.createdBy, txn.newLandOwner, txn.validators);
+    }
+
+    function getAddLandTransactionsLength() public view returns (uint) {
         return addLandTransactions.length;
+    }
+
+    function getTransferLandTransactionsLength() public view returns (uint) {
+        return transferLandTransactions.length;
     }
 
     function getLandsLength() public view returns (uint) {
@@ -142,6 +161,21 @@ contract LandTitle is AccessControl {
         return (land.ownerAddress, land.previousOwners, land.coordinates, land.ownerName, land.location);
     }
 
+    /* 
+        Once add land transaction has been validated (e.g 2 validators has validated),
+        Replace the land transaction with the last land transaction, delete the last transaction
+        Add the Land on the lands array
+    */
+    function addLand(AddLandTransaction _transaction) internal onlyValidator {
+        require(_transaction.validators.length >= requiredValidatorsLength, "Transfer land needs at least two validators");
+        AddLandTransaction storage lastTransaction = addLandTransactions[addLandTransactions.length - 1];
+        lastTransaction.index = _transaction.index;   
+        addLandTransactions[_transaction.index] = lastTransaction;
+        delete addLandTransactions[addLandTransactions.length - 1]; 
+        addLandTransactions.length--;
+        lands.push(_transaction.land);
+    }
+
     /*
         Once transfer land transaction has been validated, 
         Replace the land transaction with the last land transaction in the array
@@ -150,9 +184,12 @@ contract LandTitle is AccessControl {
     function transferLand(TransferLandTransaction _transaction) internal onlyValidator {
         require(_transaction.validators.length >= requiredValidatorsLength, "Transfer land needs at least two validators");
         TransferLandTransaction storage lastTransaction = transferLandTransactions[transferLandTransactions.length - 1]; 
-        transferLandTransactions[_transaction.index] = lastTransaction;
         lastTransaction.index = _transaction.index;
+        transferLandTransactions[_transaction.index] = lastTransaction;
+        delete transferLandTransactions[transferLandTransactions.length - 1];
+        transferLandTransactions.length--;
         lands[_transaction.landIndex].previousOwners.push(lands[_transaction.landIndex].ownerAddress);
         lands[_transaction.landIndex].ownerAddress = _transaction.newLandOwner;
+        lands[_transaction.landIndex].ownerName = _transaction.newLandOwnerName;
     }
 }
