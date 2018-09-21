@@ -8,7 +8,8 @@
       "**/*.spec.ts",
       "contracts",
       "migrations",
-      "config"
+      "config",
+      "backend",
     ]
   }
   
