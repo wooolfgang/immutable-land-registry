@@ -1,6 +1,9 @@
 import React, { Fragment } from 'react';
 import { observer, inject } from 'mobx-react';
-import { HashRouter as Router } from 'react-router-dom';
+import { HashRouter as Router, Route } from 'react-router-dom';
+import Main from '../pages/Main';
+import Landing from '../pages/Landing';
+import Login from '../pages/Login';
 
 @inject('UserStore', 'AuthStore') @observer
 class App extends React.Component {
@@ -17,7 +20,10 @@ class App extends React.Component {
     return (
       <Router>
         <Fragment>
-          <h1> Hello World </h1>
+          { !(window.location.hash === '#/login') &&
+            <Route path="/" component={isAuthenticated ? Main : Landing} />
+          }
+          <Route exact path="/login" component={Login} />
         </Fragment>
       </Router>
     );
