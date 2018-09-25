@@ -1,0 +1,9 @@
+export const stepStyle = { marginTop: '30em' };
+export const containerDivStyle = { marginTop: '4em' };
+export const inputStyle = { width: '20em' };
+export const disabledInputStyle = { width: '20em', pointerEvents: 'none' };
+export const disabledBigInputStyle = { width: '45em', pointerEvents: 'none' };
+export const bigInputStyle = { width: '45em' };
+export const buttonStyle = { width: '6em' };
+export const mapContainerElement = { height: '40em' };
+export const mapButtonsDiv = { marginTop: '2em' };
