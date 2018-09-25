@@ -50,7 +50,7 @@ const Component = inject('LandStore')(observer(({ LandStore }) => (
               LandStore.getValidationStatus('firstName');
             }}
             style={inputStyle}
-            placeholder="Brent Anthony"
+            placeholder="Bob"
             value={LandStore.newLandTitle.firstName}
           />
         </Item>
@@ -67,7 +67,7 @@ const Component = inject('LandStore')(observer(({ LandStore }) => (
               LandStore.getValidationStatus('surname');
             }}
             style={inputStyle}
-            placeholder="Tudas"
+            placeholder="Evans"
             value={LandStore.newLandTitle.surname}
           />
         </Item>
@@ -114,7 +114,7 @@ const Component = inject('LandStore')(observer(({ LandStore }) => (
             LandStore.getValidationStatus('residenceOfOwner');
           }}
           style={bigInputStyle}
-          placeholder="Visayan Village, Tagum City"
+          placeholder="Lapuz, Iloilo City"
           value={LandStore.newLandTitle.residenceOfOwner}
         />
       </Item>

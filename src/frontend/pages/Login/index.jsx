@@ -46,8 +46,12 @@ class LoginComponent extends React.Component {
       if (!err) {
         console.log('Received values of form: ', values);
         const { fullName, homeAddress, governmentIdNumber } = values;
-        await signup(fullName, homeAddress, governmentIdNumber);
-        history.push('/');
+        try {
+          await signup(fullName, homeAddress, governmentIdNumber);
+          history.push('/');
+        } catch (e) {
+          console.log(e);
+        }
       }
     });
   }
@@ -87,7 +91,7 @@ class LoginComponent extends React.Component {
                 {getFieldDecorator('fullName', {
             rules: [{ required: true, message: 'Please input your full name' }] })(<Input
               style={bigInputStyle}
-              placeholder="Brent Anthony Tudas"
+              placeholder="Bob Evans"
             />)}
 
               </Item>
@@ -98,7 +102,7 @@ class LoginComponent extends React.Component {
                 {getFieldDecorator('homeAddress', {
             rules: [{ required: true, message: 'Please input your home address' }] })(<Input
               style={bigInputStyle}
-              placeholder="Tagum City, Davao del Norte"
+              placeholder="Lapak Street, Iloilo City"
             />)}
               </Item>
               <Item hasFeedback label={<StyledSpan> Government Id Number </StyledSpan>}>

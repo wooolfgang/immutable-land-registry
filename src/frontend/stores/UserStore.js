@@ -16,6 +16,7 @@ class UserStore {
   @action.bound
   setAuthenicatedUser(user) {
     this.authenticatedUser = user;
+    console.log(user);
   }
 
   @action.bound

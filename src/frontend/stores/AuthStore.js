@@ -53,12 +53,15 @@ class AuthStore {
     const users = (await app.service('api/users').find({ query: { publicAddress } }));
     let user = users[0];
 
-    if (users.length === 0) {
+    if (users.length === 0 && fullName && homeAddress && governmentIdNumber) {
       user = await app.service('api/users').create({ publicAddress, fullName, homeAddress, governmentIdNumber });
-    } else {
-      const signature = await web3.eth.personal.sign(web3.utils.fromUtf8(`I am signing my one-time nonce: ${user.nonce}`), user.publicAddress);
-      await this.signinWithMetamask(signature, user.publicAddress);
     }
+
+    console.log(user);
+
+    const signature = await web3.eth.personal.sign(web3.utils.fromUtf8(`I am signing my one-time nonce: ${user.nonce}`), user.publicAddress);
+    console.log(signature);
+    await this.signinWithMetamask(signature, user.publicAddress);
   }
 
   @action.bound
