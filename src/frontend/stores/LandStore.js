@@ -3,6 +3,7 @@ import { required } from '../utils/validation';
 
 class LandStore {
   @observable currentNewLandStep = 0;
+  @observable registeredLands;
   @observable newLandTitle = {
     firstName: '',
     surname: '',
@@ -23,6 +24,10 @@ class LandStore {
 
   constructor(store) {
     this.store = store;
+  }
+
+  async getRegisteredLands() {
+    this.registeredLands = [];
   }
 
   @action.bound
