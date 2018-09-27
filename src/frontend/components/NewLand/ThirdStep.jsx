@@ -1,31 +1,36 @@
 import React from 'react';
 import { observer, inject } from 'mobx-react';
+import styled from 'styled-components';
 import { Button, Form, Input } from 'antd';
 import { CenteredDiv, GridColDiv, StyledSpan } from '../Generic';
 import { containerDivStyle, disabledBigInputStyle, buttonStyle, disabledInputStyle } from './styles';
 
 const { Item } = Form;
 
+const PaddedDiv = styled.div`
+  margin: '15px';
+`;
+
 const Component = inject('LandStore')(observer(({ LandStore }) => (
   <Form style={containerDivStyle}>
     <CenteredDiv>
       <GridColDiv col="1fr 1fr" gap="5em">
         <Item
-          label={<StyledSpan> Owner's First Name </StyledSpan>}
+          label={<StyledSpan> Owners Name </StyledSpan>}
         >
           <Input
             style={disabledInputStyle}
             placeholder="Brent Anthony"
-            value={LandStore.newLandTitle.firstName}
+            value={LandStore.newLandTitle.fullName}
           />
         </Item>
         <Item
-          label={<StyledSpan> Owner's Surname </StyledSpan>}
+          label={<StyledSpan> Address </StyledSpan>}
         >
           <Input
             style={disabledInputStyle}
             placeholder="Tudas"
-            value={LandStore.newLandTitle.surname}
+            value={LandStore.newLandTitle.ownerAddress}
           />
         </Item>
       </GridColDiv>
@@ -52,10 +57,23 @@ const Component = inject('LandStore')(observer(({ LandStore }) => (
         />
       </Item>
     </CenteredDiv>
-    <CenteredDiv margin="19.5em">
+    <CenteredDiv>
+      <PaddedDiv>
+        {
+          LandStore.newLandTitle.coordinates.map(data =>
+            (
+              <div>
+              Latitude: {data.lat}
+              Longitude: {data.lng}
+              </div>
+            ))
+        }
+      </PaddedDiv>
+    </CenteredDiv>
+    <CenteredDiv>
       <GridColDiv col="1fr 1fr" gap="5em">
         <Button onClick={() => LandStore.nextStep(false)} style={buttonStyle}> Back </Button>
-        <Button onClick={() => LandStore.addLandToContract()} style={buttonStyle} type="primary"> Confirm </Button>
+        <Button onClick={LandStore.submitLand} style={buttonStyle} type="primary"> Confirm </Button>
       </GridColDiv>
     </CenteredDiv>
   </Form>

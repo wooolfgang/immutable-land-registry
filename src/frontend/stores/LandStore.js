@@ -1,12 +1,13 @@
-import { observable, action } from 'mobx';
+import { observable, action, toJS } from 'mobx';
 import { required } from '../utils/validation';
 
 class LandStore {
+  @observable landContract;
   @observable currentNewLandStep = 0;
-  @observable registeredLands;
+  @observable registeredLands = [];
   @observable newLandTitle = {
-    firstName: '',
-    surname: '',
+    fullName: '',
+    ownerAddress: '',
     residenceOfOwner: '',
     landLocation: '',
     landArea: '',
@@ -16,8 +17,8 @@ class LandStore {
     coordinates: [],
   };
   @observable newLandTitleErr = {
-    firstName: 'Required',
-    surname: 'Required',
+    fullName: 'Required',
+    ownerAddress: 'Required',
     residenceOfOwner: 'Required',
     contactNumber: 'Required',
   };
@@ -26,8 +27,36 @@ class LandStore {
     this.store = store;
   }
 
-  async getRegisteredLands() {
-    this.registeredLands = [];
+  @action.bound
+  setContract(contract) {
+    this.landContract = contract;
+  }
+
+  @action.bound
+  async fetchLand() {
+    if (!this.landContract) {
+      throw new Error('Land contract is not defined');
+    }
+
+    const registeredLandsLength = await this.landContract.getLandsLength.call();
+    const landPromises = [];
+
+    for (let i = 0; i < registeredLandsLength; i++) {
+      landPromises.push(this.landContract.getLand(i));
+    }
+
+    const finalPromise = landPromises.reduce((previousPromise, current) => {
+      return previousPromise.then((allContents) => {
+        return current.then((content) => {
+          allContents.push(content);
+          return allContents;
+        });
+      });
+    }, Promise.resolve([]));
+
+    const lands = await finalPromise;
+    const formattedlands = lands;
+    this.registeredLands = formattedlands;
   }
 
   @action.bound
@@ -36,6 +65,45 @@ class LandStore {
       this.currentNewLandStep++;
     } else {
       this.currentNewLandStep--;
+    }
+  }
+
+  @action.bound
+  async addLand(land) {
+    const coordinates = [];
+    land.latLngs.b[0].b.forEach((land) => {
+      const lat = land.lat();
+      const lng = land.lng();
+      coordinates.push({ lat, lng });
+    });
+    this.registeredLands.push(coordinates);
+    const mapped = coordinates.map(coor => new google.maps.LatLng(coor.lat, coor.lng));
+    const polygon = new google.maps.Polygon({ path: mapped });
+    const area = google.maps.geometry.spherical.computeArea(polygon.getPath());
+    this.handleInputChange('coordinates', coordinates);
+    this.handleInputChange('landArea', area);
+  }
+
+  @action.bound
+  async submitLand() {
+    const address = await this.store.Web3Store.getAddress();
+    if (!this.landContract || !address) {
+      throw new Error('Land contract is not defined');
+    }
+
+    try {
+      const res = await this.landContract.addLandTransaction(
+        toJS(this.newLandTitle.ownerAddress),
+        toJS(this.newLandTitle.coordinates),
+        toJS(this.newLandTitle.fullName),
+        toJS(this.newLandTitle.landLocation),
+        {
+          from: address,
+        },
+      );
+      console.log(res);
+    } catch (e) {
+      console.log(e);
     }
   }
 

@@ -38,37 +38,37 @@ const Component = inject('LandStore')(observer(({ LandStore }) => (
     <CenteredDiv>
       <GridColDiv col="1fr 1fr" gap="5em">
         <Item
-          label={<StyledSpan> Owner's First Name </StyledSpan>}
-          validateStatus={LandStore.getValidationStatus('firstName')}
+          label={<StyledSpan> Owner Name </StyledSpan>}
+          validateStatus={LandStore.getValidationStatus('fullName')}
           hasFeedback
-          help={<ErrorText> {LandStore.newLandTitleErr.firstName} </ErrorText>}
+          help={<ErrorText> {LandStore.newLandTitleErr.fullName} </ErrorText>}
         >
           <Input
             onChange={(e) => {
-              LandStore.handleInputChange('firstName', e.target.value);
-              LandStore.getError('firstName');
-              LandStore.getValidationStatus('firstName');
+              LandStore.handleInputChange('fullName', e.target.value);
+              LandStore.getError('fullName');
+              LandStore.getValidationStatus('fullName');
             }}
             style={inputStyle}
             placeholder="Bob"
-            value={LandStore.newLandTitle.firstName}
+            value={LandStore.newLandTitle.fullName}
           />
         </Item>
         <Item
-          label={<StyledSpan> Owner's Surname </StyledSpan>}
-          validateStatus={LandStore.getValidationStatus('surname')}
+          label={<StyledSpan> Owner Address </StyledSpan>}
+          validateStatus={LandStore.getValidationStatus('ownerAddress')}
           hasFeedback
-          help={<ErrorText> {LandStore.newLandTitleErr.surname} </ErrorText>}
+          help={<ErrorText> {LandStore.newLandTitleErr.ownerAddress} </ErrorText>}
         >
           <Input
             onChange={(e) => {
-              LandStore.handleInputChange('surname', e.target.value);
-              LandStore.getError('surname');
-              LandStore.getValidationStatus('surname');
+              LandStore.handleInputChange('ownerAddress', e.target.value);
+              LandStore.getError('ownerAddress');
+              LandStore.getValidationStatus('ownerAddress');
             }}
             style={inputStyle}
             placeholder="Evans"
-            value={LandStore.newLandTitle.surname}
+            value={LandStore.newLandTitle.ownerAddress}
           />
         </Item>
       </GridColDiv>

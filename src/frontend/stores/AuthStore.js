@@ -57,10 +57,7 @@ class AuthStore {
       user = await app.service('api/users').create({ publicAddress, fullName, homeAddress, governmentIdNumber });
     }
 
-    console.log(user);
-
     const signature = await web3.eth.personal.sign(web3.utils.fromUtf8(`I am signing my one-time nonce: ${user.nonce}`), user.publicAddress);
-    console.log(signature);
     await this.signinWithMetamask(signature, user.publicAddress);
   }
 

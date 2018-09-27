@@ -60,10 +60,6 @@ const MapWithAMarkerWithLabel = compose(
 
 @inject('LandStore') @observer
 class MapComponent extends React.Component {
-  componentWillMount() {
-    this.props.LandStore.getRegisteredLands();
-  }
-
   render() {
     const { LandStore } = this.props;
     return (

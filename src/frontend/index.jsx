@@ -8,14 +8,17 @@ import App from './components/App';
 
 import RootStore from './stores/';
 import getWeb3 from './utils/getWeb3';
+import getContract from './utils/getContract';
 
 const store = new RootStore();
 window.store = store;
 
 getWeb3
-  .then((res) => {
+  .then(async (res) => {
     store.Web3Store.addWeb3(res.web3Instance);
     store.Web3Store.getAddress();
+    const contract = await getContract(res.web3Instance);
+    store.LandStore.setContract(contract);
   })
   .catch(err => console.log(err));
 
