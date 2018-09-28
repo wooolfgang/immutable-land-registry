@@ -95,4 +95,8 @@ contract AccessControl {
         return transactors[_adr];
     }
 
+    function isCeo(address _adr) public view returns (bool) {
+        return owner == _adr;
+    }
+
 }

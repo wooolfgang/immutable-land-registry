@@ -16,10 +16,10 @@ const Main = ({ LandStore: { landContract } }) => (
   <div style={{ overflow: 'hidden', height: '100vh', width: '100vw' }}>
     <Col span="6">
       <Switch>
-        <Route path="/newland" component={Sidebar} />
-        <Route path="/map" component={Sidebar} />
-        <Route exact path="/" component={Sidebar} />
-        <Route path="/land/:code" component={LandProfile} />
+        <Route path="/newland" component={landContract && Sidebar} />
+        <Route path="/map" component={landContract && Sidebar} />
+        <Route exact path="/" component={landContract && Sidebar} />
+        <Route path="/land/:code" component={landContract && LandProfile} />
       </Switch>
     </Col>
 

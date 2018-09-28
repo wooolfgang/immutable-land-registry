@@ -16,7 +16,7 @@ class MetamaskVerifier extends Verifier {
       return done(new Error('Request should have signature and publicAddress'));
     }
 
-    const res = await this.app.service('api/users').find({ publicAddress: username });
+    const res = await this.app.service('api/users').find({ query: { publicAddress: username } });
 
     if (res.length <= 0) {
       throw new Error('User does not exist');
@@ -48,10 +48,11 @@ class MetamaskVerifier extends Verifier {
         console.log('Success login');
         return done(null, user, payload);
       } catch (e) {
+        console.log(e);
         return done(new Error('Error in changing user nonce'));
       }
     } else {
-      return done(new Error('Error in changing user nonce'));
+      return done(new Error('Address is not equal to username vise versa'));
     }
   }
 }

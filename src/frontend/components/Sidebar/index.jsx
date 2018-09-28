@@ -3,6 +3,8 @@ import { observer, inject } from 'mobx-react';
 import { Redirect, Link } from 'react-router-dom';
 import { Row, Divider, Icon } from 'antd';
 import styled from 'styled-components';
+import ProfileModal from './ProfileModal';
+
 
 const StyledHeader = styled.nav`
   display: grid;
@@ -59,51 +61,83 @@ const MarginDiv = styled.div`
   margin-bottom: ${props => props.bottom};
 `;
 
-const SidebarComponent = ({
-  AuthStore: { logout }, LandStore: { resetSelectedTitle }, UserStore: { authenticatedUser } }) => (
-    <StyledHeader>
-      <CenteredDiv>
-        <Icon type="crown" theme="outlined" style={{ color: '#a8dadc', cursor: 'pointer', fontSize: '30px', position: 'absolute', top: '5px', right: '12px' }} />
-        <ProfileDiv rows="3">
-          <CenteredDiv>
-            <StyledImage src="https://res.cloudinary.com/depjh17m6/image/upload/v1537885123/facebook-profile-picture-silhouette-17_umosuf.jpg" />
-          </CenteredDiv>
-          <ProfileDiv row="2 / 3" rows="4">
-            <StyledText row="1 / 2" color="white" size="2.5em" smallsize="2em" weight="500"> {authenticatedUser && authenticatedUser.fullName} </StyledText>
-            <StyledText row="2 / 3" color="white" size="1em" smallsize="0.8em" weight="200">
+class SidebarComponent extends React.Component {
+  state = { visible: false }
+
+  showModal = () => {
+    this.setState({
+      visible: true,
+    });
+  }
+
+  handleOk = (e) => {
+    console.log(e);
+    this.setState({
+      visible: false,
+    });
+  }
+
+  handleCancel = (e) => {
+    console.log(e);
+    this.setState({
+      visible: false,
+    });
+  }
+
+
+  render() {
+    const {
+      AuthStore: { logout },
+      LandStore: { resetSelectedTitle },
+      UserStore: { authenticatedUser } } = this.props;
+    if (!authenticatedUser) return null;
+    return (
+      <StyledHeader>
+        <CenteredDiv>
+          <Icon onClick={this.showModal} type="crown" theme="outlined" style={{ color: '#a8dadc', cursor: 'pointer', fontSize: '30px', position: 'absolute', top: '5px', right: '12px' }} />
+          <ProfileModal visible={this.state.visible} handleCancel={this.handleCancel} handleOk={this.handleOk} />
+          <ProfileDiv rows="3">
+            <CenteredDiv>
+              <StyledImage src="https://res.cloudinary.com/depjh17m6/image/upload/v1537885123/facebook-profile-picture-silhouette-17_umosuf.jpg" />
+            </CenteredDiv>
+            <ProfileDiv row="2 / 3" rows="4">
+              <StyledText row="1 / 2" color="white" size="2.5em" smallsize="2em" weight="500"> {authenticatedUser && authenticatedUser.fullName} </StyledText>
+              <StyledText row="2 / 3" color="white" size="1em" smallsize="0.8em" weight="200">
             Employee at Land Registration Authority
-              <Divider />
-            </StyledText>
-            <CenteredDiv cursor="pointer">
-              <Row type="flex" align="start">
-                <Icon type="area-chart" style={{ fontSize: '2.5em', color: '#a8dadc' }} />
-                <StyledText left="0.3em" color="#a8dadc" size="2em">
-                  <Link style={{ color: 'white', textDecoration: 'none' }} onClick={() => resetSelectedTitle()} to="/map">
+                <Divider />
+              </StyledText>
+              <CenteredDiv cursor="pointer">
+                <Row type="flex" align="start">
+                  <Icon type="area-chart" style={{ fontSize: '2.5em', color: '#a8dadc' }} />
+                  <StyledText left="0.3em" color="#a8dadc" size="2em">
+                    <Link style={{ color: 'white', textDecoration: 'none' }} onClick={() => resetSelectedTitle()} to="/map">
                   Map &nbsp; &nbsp; &nbsp;
-                  </Link>
-                </StyledText>
-              </Row>
-            </CenteredDiv>
-            <CenteredDiv cursor="pointer">
-              <Row type="flex" align="start">
-                <Icon type="file-add" style={{ fontSize: '2.5em', color: '#a8dadc' }} />
-                <StyledText left="0.3em" color="#a8dadc" size="2em">
-                  <Link style={{ color: 'white', textDecoration: 'none' }} to="/newland">
+                    </Link>
+                  </StyledText>
+                </Row>
+              </CenteredDiv>
+              <CenteredDiv cursor="pointer">
+                <Row type="flex" align="start">
+                  <Icon type="file-add" style={{ fontSize: '2.5em', color: '#a8dadc' }} />
+                  <StyledText left="0.3em" color="#a8dadc" size="2em">
+                    <Link style={{ color: 'white', textDecoration: 'none' }} to="/newland">
                   Register
-                  </Link>
-                </StyledText>
+                    </Link>
+                  </StyledText>
+                </Row>
+              </CenteredDiv>
+            </ProfileDiv>
+            <MarginDiv top="10em">
+              <Row type="flex" align="end">
+                <StyledText onClick={logout} cursor="pointer" left="7em" color="white" size="1.5em" weight="200"> Sign Out </StyledText>
               </Row>
-            </CenteredDiv>
+            </MarginDiv>
           </ProfileDiv>
-          <MarginDiv top="10em">
-            <Row type="flex" align="end">
-              <StyledText onClick={logout} cursor="pointer" left="7em" color="white" size="1.5em" weight="200"> Sign Out </StyledText>
-            </Row>
-          </MarginDiv>
-        </ProfileDiv>
-      </CenteredDiv>
-    </StyledHeader>
-);
+        </CenteredDiv>
+      </StyledHeader>
+    );
+  }
+}
 
 const Routes = ({ AuthStore, LandStore, UserStore }) => (
   <div>
