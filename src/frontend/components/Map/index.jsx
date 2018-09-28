@@ -16,7 +16,7 @@ const MapWithAMarkerWithLabel = compose(
     defaultCenter={{ lat: 10.69694, lng: 122.56444 }}
     onClick={e => props.LandStore.selectMap(e)}
   >
-    {props.LandStore.registeredLands.map(land => (
+    {props.LandStore.landCoordinates.map(land => (
       <Polyline
         path={land}
         geodesic
@@ -60,6 +60,11 @@ const MapWithAMarkerWithLabel = compose(
 
 @inject('LandStore') @observer
 class MapComponent extends React.Component {
+  componentDidMount() {
+    const { LandStore } = this.props;
+    LandStore.fetchLand();
+  }
+
   render() {
     const { LandStore } = this.props;
     return (

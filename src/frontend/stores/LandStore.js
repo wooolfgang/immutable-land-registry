@@ -6,6 +6,7 @@ class LandStore {
   @observable landContract;
   @observable currentNewLandStep = 0;
   @observable registeredLands = [];
+  @observable landCoordinates = [];
   @observable addLandTransactions = [];
   @observable roleTransactions = [];
   @observable transferLandTransactions = [];
@@ -59,7 +60,21 @@ class LandStore {
     }, Promise.resolve([]));
 
     const lands = await finalPromise;
-    const formattedlands = lands;
+    const formattedlands = formatter.formatRegisteredLands(lands);
+    this.landCoordinates = formattedlands.map((coord) => {
+      const coordinates = coord.coordinates.reduce((acc, val) => {
+        acc.push({ lat: val.lat, lng: val.lng });
+        return acc;
+      }, []);
+      return coordinates;
+    });
+    console.log(formattedlands.map((coord) => {
+      const coordinates = coord.coordinates.reduce((acc, val) => {
+        acc.push({ lat: val.lat, lng: val.lng });
+        return acc;
+      }, []);
+      return coordinates;
+    }));
     this.registeredLands = formattedlands;
   }
 

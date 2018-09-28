@@ -1,5 +1,20 @@
-function formatRegisteredLands() {
-
+function formatRegisteredLands(lands) {
+  return lands.map((land) => {
+    const coordinates = land[2].map((coordinate) => {
+      const parsed = web3.toAscii(coordinate).split(',');
+      return {
+        lat: Number(parsed[0]),
+        lng: Number(parsed[1].slice(0, parsed[1].length - 1)),
+      };
+    });
+    return {
+      ownerAddress: land[0],
+      previousOwners: land[1],
+      coordinates,
+      ownerName: web3.toAscii(land[3]),
+      location: web3.toAscii(land[4]),
+    };
+  });
 }
 
 function formatAddLandRequests(requests) {
